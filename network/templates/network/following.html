@@ -1,0 +1,121 @@
+{% extends "network/layout.html" %}
+{% block body %}
+    <style>
+        #alert{
+            margin-left: 300px;
+            margin-right: 300px;
+        }
+        a{
+            text-decoration: none !important;;
+            color: black;
+        }
+    </style>
+    {% for post in posts %}
+    <div class="alert alert-secondary" role="alert" id="alert">
+        <h4 class="alert-heading"><a href="{% url 'profile' post.user.username %}">{{post.user.username}}</a></h4>
+        <p>{{post.body}}</p>
+        <hr>
+        {% if request.user in post.like_users.all %}
+        <p>{{post.datetime}}<button class="btn btn-danger float-right" data-id="{{post.id}}" data-current_username="{{request.user.username}}">UnLike</button>
+        {% else %}
+        <p>{{post.datetime}}<button class="btn btn-primary float-right" data-id="{{post.id}}" data-current_username="{{request.user.username}}">Like</button>
+        {% endif %}
+        <p style="text-align: right;" id="{{post.id}}">{{post.like_num}}</p>
+        </p>
+    </div>
+    {% empty %}
+    <center>
+        <h2 class="mb-4">You are not Following any one</h2>
+    </center>
+    {% endfor %}
+    <nav aria-label="Page navigation example" id="pagination">
+        <ul class="pagination justify-content-center pagination-lg">
+            {% if posts.has_previous %}              
+                <li class="page-item">
+                    <a class="page-link" href="?page={{posts.previous_page_number}}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}            
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for number in posts.paginator.page_range %}
+                {% if posts.number == number %}
+                    <li class="page-item active"><a class="page-link" href="">{{posts.number}}</a></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{number}}">{{number}}</a></li>
+                {% endif %}            
+            {% endfor %}
+
+            {% if posts.has_next %}              
+                <li class="page-item">
+                    <a class="page-link" href="?page={{posts.next_page_number}}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}  
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block script %}
+<script>
+    if (document.querySelector("h2").innerHTML == "You are not Following any one"){
+    document.querySelector("#pagination").style.display = "none";
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        posts = document.querySelectorAll("button");
+        posts.forEach((element) => {
+            element.addEventListener('click', () => {
+                like(element);
+            })
+        })
+        function edit(id) {
+            fetch(`/obj/${id}`)
+                .then(response => response.json())
+                .then(content => {
+                    document.querySelectorAll("#alert").forEach(item => {
+                        item.style.display = "none";
+                    });
+                    document.querySelector("#pagination").style.display = "none";
+                    document.querySelector("form").style.display = "block";
+                    document.querySelector("textarea").value = content.body;
+                    document.querySelector("#id").value = id;
+                })
+        }
+        function like(element){
+            id = element.dataset.id;
+            current_user = element.dataset.current_username;
+            count = document.getElementById(`${id}`);
+            if (element.innerHTML == "Like"){
+                fetch(`/like/${id}/${current_user}`)
+                .then(response => response.json())
+                .then(message => {
+                    element.className = 'btn btn-danger float-right';
+                    element.innerHTML = "UnLike";
+                    count.innerHTML = message.like_num;
+                })
+            } else if(element.innerHTML == "UnLike"){
+                fetch(`/unlike/${id}/${current_user}`)
+                .then(response => response.json())
+                .then(message => {
+                    element.className = 'btn btn-primary float-right';
+                    element.innerHTML = "Like";
+                    count.innerHTML = message.like_num;
+                })
+            }
+        }
+    })
+</script>
+{% endblock %}

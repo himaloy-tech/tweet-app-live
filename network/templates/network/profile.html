@@ -1,0 +1,39 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <style>
+        #alert{
+            margin-left: 300px;
+            margin-right: 300px;
+        }
+        #fan{
+            text-align: center;
+            font-size: large;
+        }
+    </style>
+    <center><h1>{{username}}</h1></center>
+    <center><p id="fan"><b>Followers: {{follower_count}} | Followings: {{following_count}}</b></p></center>
+    {% if button %}
+        {% if check %} 
+            <center>
+                <a href="{% url 'unfollow' username %}">
+                    <button class="btn btn-danger mb-2">Unfollow</button>
+                </a>
+            </center>
+        {% else %} 
+            <center>
+                <a href="{% url 'follow' username %}">
+                    <button class="btn btn-primary mb-2">Follow</button>
+                </a>
+            </center>    
+        {% endif %}
+    {% endif %}
+    {% for post in posts %}
+    <div class="alert alert-secondary" role="alert" id="alert">
+        <h4 class="alert-heading">{{post.user.username}}</h4>
+        <p>{{post.body}}</p>
+        <hr>
+        <p class="mb-0">{{post.datetime}}</p>
+    </div>
+    {% endfor %}
+{% endblock %}
