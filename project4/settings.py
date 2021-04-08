@@ -77,14 +77,13 @@ WSGI_APPLICATION = 'project4.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'dcgev0utsl6vnd',
+        'HOST': 'ec2-3-211-37-117.compute-1.amazonaws.com',
+        'USER': 'aujmbmkfbhauxa',
+        'PASSWORD': 'b607a5f4aefeb95c232e1b49dfd79b9d286202f019b2c5796f405ec80885752b'
     }
 }
-
-import dj_database_url
-db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES['default'].update(db_from_env)
 
 AUTH_USER_MODEL = "network.User"
 
